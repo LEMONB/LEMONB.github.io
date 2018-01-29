@@ -1,0 +1,117 @@
+html{
+    background-image:url(images/background.png);
+    background-color: #48595F;
+    background-size:auto;
+    
+    color:aliceblue;
+}
+
+.allIn{
+    width:1000px;
+    margin: auto;
+}
+
+p {
+    text-align: left;
+}
+
+/*//////////////////////HEADER-START//////////////////////*/
+.header{
+}
+
+#header_field{
+    position: relative;
+    top:-8px;
+    height: 150px;
+    background-color: black;
+    padding: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom: none;
+    border: 2px;
+    border-style: solid;
+}
+
+#head_img img{
+    position: absolute;
+    top:5%;
+    right: 5px;
+    height: 90%;
+}
+
+#head_text a{
+    position: absolute;
+    top:25%;
+    left:2%;
+    color:whitesmoke;
+    font-size: 40px;
+    text-decoration: none;
+}
+/*//////////////////////HEADER-END//////////////////////*/
+
+
+/*//////////////////////MAIN-START//////////////////////*/
+.main{
+}
+
+table {
+    table-layout: fixed;   
+}
+
+#main_field{
+    position: relative;
+    top:-10px;
+    background-color: #131313;
+    border: 2px;
+    border-style: solid;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+#menu ul{
+    font-size: 28px;
+    text-align: center;
+}
+
+#menu li{
+    border: 1px;
+    border-radius: 2px;
+    display: inline;
+}
+
+#menu a{
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 50px;
+    padding-right: 50px;
+    
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+.missions_head a {
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+}
+
+.missions_article{
+    padding: 5px 15px;
+}
+
+.missions_article a {
+    color: white;
+}
+
+
+#main_article {
+    text-align: center;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.hover li:hover{
+    border-color: black;
+    background-color:gainsboro;
+}
+/*//////////////////////MAIN-END//////////////////////*/
