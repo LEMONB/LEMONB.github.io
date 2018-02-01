@@ -121,9 +121,6 @@ function startSearch() {
 }
 
 function reset() {
-  arrSize = 25;
-  wid = 0;
-
   nodes =  new Array(arrSize);
   openSet = [];
   closedSet = [];
@@ -151,7 +148,6 @@ function keyPressed() {
 
   if (isReady === true)
     return;
-
 
   if (keyCode === 66)
     isReady = true;
@@ -211,11 +207,20 @@ function draw() {
     current = openSet[winnerInd];
 
     if (current == targetNode) {
+      for (var i =  0; i < closedSet.length; i++) {
+        closedSet[i].show(255, 0, 0);
+      }
+
+      for (var i =  0; i < openSet.length; i++) {
+        openSet[i].show(0, 255, 0);
+      }
+      
       for (var i =  0; i < path.length; i++) {
         path[i].show(0, 0, 255);
       }
       console.log("DONE!");
       noLoop();
+      return;
     }
 
     removeFromArray(openSet, current);
