@@ -62,7 +62,7 @@ class Node {
     else
       fill(r, g, b);
 
-    rect(i * wid, j * wid, wid, wid);
+    rect(i * wid, j * wid, wid-1, wid-1);
   }
 
   void addNeighbors(Node[][] _nodes) {
