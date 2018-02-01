@@ -76,7 +76,7 @@ var isBuilding =  false;
 
 //var button;
 document.oncontextmenu = function() {
-    return false;
+  return false;
 }
 function setup() {
   createCanvas(800, 800);
@@ -113,12 +113,7 @@ function setup() {
       nodes[i][j].show(255, 255, 255);
     }
   }
-  //startNode.show(0, 255, 255);
-  //targetNode.show(255, 0, 255);
-
-  //button = createButton("click me", button);
-  //button.position(19, 19);
-  //button.mousePressed(startSearch);
+  loop();
 }
 
 function startSearch() {
@@ -130,16 +125,15 @@ function reset() {
   wid = 0;
 
   nodes =  new Array(arrSize);
-  openSet =  [];
-  closedSet =  [];
-  path =  [];
+  openSet = [];
+  closedSet = [];
+  path = [];
   startNode = null;
   targetNode = null;
   current = null;
-  
+
   isReady =  false;
   isBuilding =  false;
-  
   setup();
 }
 
@@ -152,9 +146,9 @@ function mouseReleased() {
 function keyPressed() {
   if (keyCode === 82)
     reset();
-    
-  console.log(isReady);
-  
+
+  //console.log(isReady);
+
   if (isReady === true)
     return;
 
@@ -163,7 +157,7 @@ function keyPressed() {
     isReady = true;
 
   if (keyCode === 71) {
-    var wallsProbability = 0.3;
+    var wallsProbability = 0.25;
 
     for (var i =  0; i < arrSize; i++) {
       for (var j =  0; j< arrSize; j++) {
