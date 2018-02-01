@@ -132,36 +132,36 @@ void mouseReleased() {
 
 void draw() {
   
-  //if (isReady == false) {
+  if (isReady == false) {
 
-  //  if (mousePressed) {
-  //    isBuilding = true;
-  //  }
+    if (mousePressed) {
+      isBuilding = true;
+    }
 
-  //  if (isBuilding == true) {
-  //    if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-  //      if (mouseButton == LEFT) {
-  //        nodes[mouseX / wid][mouseY / wid].isWall = true;
-  //      } else if (mouseButton == RIGHT) {
-  //        nodes[mouseX / wid][mouseY / wid].isWall = false;
-  //      }
-  //    }
-  //  }
+    if (isBuilding == true) {
+      if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+        if (mouseButton == LEFT) {
+          nodes[mouseX / wid][mouseY / wid].isWall = true;
+        } else if (mouseButton == RIGHT) {
+          nodes[mouseX / wid][mouseY / wid].isWall = false;
+        }
+      }
+    }
 
-  //  for (int i = 0; i < arrSize; i++) {
-  //    for (int j= 0; j< arrSize; j++) {
-  //      nodes[i][j].show(255, 255, 255);
-  //    }
-  //  }
+    for (int i = 0; i < arrSize; i++) {
+      for (int j= 0; j< arrSize; j++) {
+        nodes[i][j].show(255, 255, 255);
+      }
+    }
 
-  //  if (keyPressed) {
-  //    if (key == 'b')
-  //      isReady = true;
-  //  }
-  //}
+    if (keyPressed) {
+      if (key == 'b')
+        isReady = true;
+    }
+  }
 
-  //if (isReady == false)
-  //  return;
+  if (isReady == false)
+    return;
 
   if (openSet.size() > 0) {
     int winnerInd = 0;
