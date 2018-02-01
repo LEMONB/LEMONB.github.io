@@ -160,8 +160,8 @@ void draw() {
     }
   }
 
-  if (isReady == false)
-    return;
+  //if (isReady == false)
+  //  return;
 
   if (openSet.size() > 0) {
     int winnerInd = 0;
