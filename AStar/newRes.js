@@ -75,7 +75,9 @@ var isReady =  false;
 var isBuilding =  false;
 
 //var button;
-
+document.oncontextmenu = function() {
+    return false;
+}
 function setup() {
   createCanvas(800, 800);
   console.log("START");
@@ -123,6 +125,24 @@ function startSearch() {
   isReady = true;
 }
 
+function reset() {
+  arrSize = 25;
+  wid = 0;
+
+  nodes =  new Array(arrSize);
+  openSet =  [];
+  closedSet =  [];
+  path =  [];
+  startNode = null;
+  targetNode = null;
+  current = null;
+  
+  isReady =  false;
+  isBuilding =  false;
+  
+  setup();
+}
+
 function mouseReleased() {
   if (isReady === true)
     return;
@@ -130,9 +150,14 @@ function mouseReleased() {
 }
 
 function keyPressed() {
+  if (keyCode === 82)
+    reset();
+    
   console.log(isReady);
+  
   if (isReady === true)
     return;
+
 
   if (keyCode === 66)
     isReady = true;
