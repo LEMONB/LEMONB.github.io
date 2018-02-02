@@ -6,90 +6,6 @@ function removeFromArray(arr, obj) {
   }
 }
 
-function Node(i, j) {
-  this.i = i;
-  this.j = j;
-  this.f = 0;
-  this.g = 0;
-  this.h = 0;
-  this.isWall = false;
-  this.previous = null;
-  this.neighbors = [];
-
-  this.generateWall = function(wallsProbability) {
-    if (this != startNode && this != targetNode) {
-      if (random(1) < wallsProbability)
-        this.isWall = true;
-      else
-        this.isWall = false;
-    }
-  }
-
-  this.show = function(r, g, b) {
-    if ( this.isWall == true)
-       fill(0, 0, 0);
-    else if (this == startNode)
-      fill(0, 255, 255);
-    else if (this == targetNode)
-      fill(255, 0, 255);
-    else
-      fill(r, g, b);
-
-     rect( this.i * wid,  this.j * wid, wid-1, wid-1);
-  }
-
-  this.pushNeighbors = function(_nodes) {
-    this.neighbors = [];
-
-    //LRUD
-    if ( this.i < arrSize - 1 && _nodes[ this.i + 1][ this.j].isWall == false) {
-      this.neighbors.push(_nodes[ this.i + 1][ this.j]);
-    }
-    if ( this.i > 0 && _nodes[ this.i - 1][ this.j].isWall == false) {
-       this.neighbors.push(_nodes[ this.i - 1][ this.j]);
-    }
-    if ( this.j < arrSize - 1 && _nodes[ this.i][ this.j + 1].isWall == false) {
-       this.neighbors.push(_nodes[ this.i][ this.j + 1]);
-    }
-    if ( this.j > 0 && _nodes[ this.i][ this.j - 1].isWall == false) {
-       this.neighbors.push(_nodes[ this.i][ this.j - 1]);
-    }
-
-    //DIAG
-    if ( this.i < arrSize - 1) {
-      if ( this.j < arrSize - 1
-        && _nodes[this.i + 1][this.j].isWall == false
-        && _nodes[this.i][this.j + 1].isWall == false)
-      {
-        this.neighbors.push(_nodes[ this.i + 1][ this.j + 1]);
-      }
-
-      if (this.j > 0
-        && _nodes[this.i + 1][this.j].isWall == false
-        && _nodes[this.i][this.j - 1].isWall == false)
-      {
-        this.neighbors.push(_nodes[ this.i + 1][ this.j - 1]);
-      }
-    }
-
-    if ( this.i > 0) {
-      if ( this.j < arrSize - 1
-        && _nodes[this.i - 1][this.j].isWall == false
-        && _nodes[this.i][this.j + 1].isWall == false)
-      {
-        this.neighbors.push(_nodes[ this.i - 1][ this.j + 1]);
-      }
-
-      if (this.j > 0
-        && _nodes[this.i - 1][this.j].isWall == false
-        && _nodes[this.i][this.j - 1].isWall == false)
-      {
-        this.neighbors.push(_nodes[ this.i - 1][ this.j - 1]);
-      }
-    }
-  }
-}
-
 function Heuristic(from, target) {
   //var d = abs(from.i - target.i) + abs(from.j - target.j);
   var d = dist(from.i, from.j, target.i, target.j);
@@ -105,10 +21,11 @@ var closedSet =  [];
 var path =  [];
 var startNode = null;
 var targetNode = null;
-var current = null;
+//var current = null;
 
 var isReady =  false;
 var isBuilding =  false;
+var isSolved = false;
 
 var isControlsExist = false;
 var genWallsButton;
@@ -195,7 +112,7 @@ function setSizeOfGrid() {
 function generateWalls() {
   var wallsProbability = wallDens.value() / 100;
 
-  console.log(wallDens.value() + "%");
+  //console.log(wallDens.value() + "%");
   for (var i =  0; i < arrSize; i++) {
     for (var j =  0; j< arrSize; j++) {
       nodes[i][j].generateWall(wallsProbability);
@@ -214,10 +131,11 @@ function reset() {
   path = [];
   startNode = null;
   targetNode = null;
-  current = null;
+  //current = null;
 
   isReady =  false;
   isBuilding =  false;
+  isSolved = false;
   setup();
 }
 
@@ -252,13 +170,18 @@ function keyPressed() {
 }
 
 function draw() {
-  background(51);
-  for (var i =  0; i < arrSize; i++) {
-    for (var j =  0; j< arrSize; j++) {
-      nodes[i][j].show(255, 255, 255);
+  if (isSolved == false) {
+    background(220);
+    stroke(0);
+    strokeWeight(1);
+    for (var i =  0; i < arrSize; i++) {
+      for (var j =  0; j< arrSize; j++) {
+        nodes[i][j].show(255, 255, 255);
+      }
     }
   }
 
+  //MOUSE CONTROLS FOR BUILDING WALLS
   if (isReady == false) {
     //console.log("BUILDING WALLS");
     if (mouseIsPressed) {
@@ -271,19 +194,23 @@ function draw() {
         }
       }
     }
+
+    for (var i =  0; i < arrSize; i++) {
+      for (var j =  0; j < arrSize; j++) {
+        nodes[i][j].pushNeighbors(nodes);
+      }
+    }
   }
 
   if (isReady == false)
     return;
-
-  for (var i =  0; i < arrSize; i++) {
-    for (var j =  0; j < arrSize; j++) {
-      nodes[i][j].pushNeighbors(nodes);
-    }
-  }
   //console.log("SEARCHING FOR TARGET");
   //console.log(openSet.length + " " + closedSet.length);
 
+  if (isSolved == true)
+    return;
+
+  //ASTAR ALGORITHM
   if (openSet.length > 0) {
     var winnerInd =  0;
     for (var i = 0; i < openSet.length; i++) {
@@ -293,23 +220,13 @@ function draw() {
       }
     }
 
-    current = openSet[winnerInd];
+    var current = openSet[winnerInd];
 
     if (current == targetNode) {
-      for (var i =  0; i < closedSet.length; i++) {
-        closedSet[i].show(255, 0, 0);
-      }
-
-      for (var i =  0; i < openSet.length; i++) {
-        openSet[i].show(0, 255, 0);
-      }
-
-      for (var i =  0; i < path.length; i++) {
-        path[i].show(0, 0, 255);
-      }
       console.log("DONE!");
+      isSolved = true;
       noLoop();
-      return;
+      //return;
     }
 
     removeFromArray(openSet, current);
@@ -343,9 +260,10 @@ function draw() {
     }
   } else {
      console.log("NO SOLUTION");
+    isSolved = true;
      noLoop();
+    return;
   }
-
   for (var i =  0; i < closedSet.length; i++) {
     closedSet[i].show(255, 0, 0);
   }
@@ -362,7 +280,18 @@ function draw() {
     temp = temp.previous;
   }
 
+  noFill();
+  stroke(0,0,255);
+  strokeWeight(4);
+  beginShape();
   for (var i =  0; i < path.length; i++) {
-    path[i].show(0, 0, 255);
+    vertex(path[i].i * wid + wid/2, path[i].j * wid + wid/2);
   }
+  endShape();
+
+  //for (var i =  0; i < path.length; i++) {
+  //  path[i].show(0, 0, 255);
+  //}
+  //console.log(current);
+  //console.log(path);
 }
