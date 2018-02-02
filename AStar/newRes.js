@@ -39,23 +39,59 @@ function Node(i, j) {
   }
 
   this.pushNeighbors = function(_nodes) {
-    if ( this.i < arrSize - 1) {
-       this.neighbors.push(_nodes[ this.i + 1][ this.j]);
+    this.neighbors = [];
+
+    //LRUD
+    if ( this.i < arrSize - 1 && _nodes[ this.i + 1][ this.j].isWall == false) {
+      this.neighbors.push(_nodes[ this.i + 1][ this.j]);
     }
-    if ( this .i > 0) {
-       this .neighbors.push(_nodes[ this.i - 1][ this.j]);
+    if ( this.i > 0 && _nodes[ this.i - 1][ this.j].isWall == false) {
+       this.neighbors.push(_nodes[ this.i - 1][ this.j]);
     }
-    if ( this .j < arrSize - 1) {
-       this .neighbors.push(_nodes[ this.i][ this.j + 1]);
+    if ( this.j < arrSize - 1 && _nodes[ this.i][ this.j + 1].isWall == false) {
+       this.neighbors.push(_nodes[ this.i][ this.j + 1]);
     }
-    if ( this .j > 0) {
-       this .neighbors.push(_nodes[ this.i][ this.j - 1]);
+    if ( this.j > 0 && _nodes[ this.i][ this.j - 1].isWall == false) {
+       this.neighbors.push(_nodes[ this.i][ this.j - 1]);
+    }
+
+    //DIAG
+    if ( this.i < arrSize - 1) {
+      if ( this.j < arrSize - 1
+        && _nodes[this.i + 1][this.j].isWall == false
+        && _nodes[this.i][this.j + 1].isWall == false)
+      {
+        this.neighbors.push(_nodes[ this.i + 1][ this.j + 1]);
+      }
+
+      if (this.j > 0
+        && _nodes[this.i + 1][this.j].isWall == false
+        && _nodes[this.i][this.j - 1].isWall == false)
+      {
+        this.neighbors.push(_nodes[ this.i + 1][ this.j - 1]);
+      }
+    }
+
+    if ( this.i > 0) {
+      if ( this.j < arrSize - 1
+        && _nodes[this.i - 1][this.j].isWall == false
+        && _nodes[this.i][this.j + 1].isWall == false)
+      {
+        this.neighbors.push(_nodes[ this.i - 1][ this.j + 1]);
+      }
+
+      if (this.j > 0
+        && _nodes[this.i - 1][this.j].isWall == false
+        && _nodes[this.i][this.j - 1].isWall == false)
+      {
+        this.neighbors.push(_nodes[ this.i - 1][ this.j - 1]);
+      }
     }
   }
 }
 
 function Heuristic(from, target) {
-  //var dist = abs(from.i - target.i) + abs(from.j - target.j);
+  //var d = abs(from.i - target.i) + abs(from.j - target.j);
   var d = dist(from.i, from.j, target.i, target.j);
   return d;
 }
@@ -74,15 +110,49 @@ var current = null;
 var isReady =  false;
 var isBuilding =  false;
 
-//var button;
+var isControlsExist = false;
+var genWallsButton;
+var startButton;
+var resetButton;
+var wallDens;
+var gridSize;
+var gridSizeButton;
 document.oncontextmenu = function() {
   return false;
 }
+
 function setup() {
   createCanvas(800, 800);
   console.log("START");
   background(51);
   wid = height / arrSize;
+
+  if (isControlsExist == false) {
+    startButton = createButton("Start");
+    startButton.position(500, 15);
+    startButton.mousePressed(startSearch);
+
+    resetButton = createButton("Reset");
+    resetButton.position(startButton.x + startButton.width + 10, startButton.y);
+    resetButton.mousePressed(reset);
+
+    wallDens = createSlider(0, 100, 25);
+    wallDens.position(startButton.x, startButton.y + startButton.height + 10);
+
+    genWallsButton = createButton("Generate Walls");
+    genWallsButton.position(wallDens.x + wallDens.width + 20, wallDens.y);
+    genWallsButton.mousePressed(generateWalls);
+
+
+    gridSize = createSlider(5, 100, 25);
+    gridSize.position(wallDens.x, wallDens.y + wallDens.height + 10);
+
+    gridSizeButton = createButton("Set Size");
+    gridSizeButton.position(gridSize.x + gridSize.width + 20, gridSize.y);
+    gridSizeButton.mousePressed(setSizeOfGrid);
+
+    isControlsExist = true;
+  }
 
   //Creating 2D array
   for (var i =  0; i < arrSize; i++) {
@@ -116,6 +186,23 @@ function setup() {
   loop();
 }
 
+function setSizeOfGrid() {
+  arrSize = gridSize.value();
+  wid = height / arrSize;
+  reset();
+}
+
+function generateWalls() {
+  var wallsProbability = wallDens.value() / 100;
+
+  console.log(wallDens.value() + "%");
+  for (var i =  0; i < arrSize; i++) {
+    for (var j =  0; j< arrSize; j++) {
+      nodes[i][j].generateWall(wallsProbability);
+    }
+  }
+}
+
 function startSearch() {
   isReady = true;
 }
@@ -141,25 +228,21 @@ function mouseReleased() {
 }
 
 function keyPressed() {
-  if (keyCode === 82)
+  if (keyCode === 82) {
     reset();
-
+  }
   //console.log(isReady);
 
-  if (isReady === true)
+  if (isReady === true) {
     return;
+  }
 
-  if (keyCode === 66)
+  if (keyCode === 66) {
     isReady = true;
+  }
 
   if (keyCode === 71) {
-    var wallsProbability = 0.25;
-
-    for (var i =  0; i < arrSize; i++) {
-      for (var j =  0; j< arrSize; j++) {
-        nodes[i][j].generateWall(wallsProbability);
-      }
-    }
+    generateWalls();
   }
   for (var i =  0; i < arrSize; i++) {
     for (var j =  0; j< arrSize; j++) {
@@ -180,6 +263,7 @@ function draw() {
     //console.log("BUILDING WALLS");
     if (mouseIsPressed) {
       if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+        //console.log("CLICKED " + int(mouseX / wid) + " " + int(mouseY / wid));
         if (mouseButton === LEFT) {
           nodes[int(mouseX / wid)][int(mouseY / wid)].isWall = true;
         } else if (mouseButton ===  RIGHT) {
@@ -192,6 +276,11 @@ function draw() {
   if (isReady == false)
     return;
 
+  for (var i =  0; i < arrSize; i++) {
+    for (var j =  0; j < arrSize; j++) {
+      nodes[i][j].pushNeighbors(nodes);
+    }
+  }
   //console.log("SEARCHING FOR TARGET");
   //console.log(openSet.length + " " + closedSet.length);
 
@@ -214,7 +303,7 @@ function draw() {
       for (var i =  0; i < openSet.length; i++) {
         openSet[i].show(0, 255, 0);
       }
-      
+
       for (var i =  0; i < path.length; i++) {
         path[i].show(0, 0, 255);
       }
@@ -228,18 +317,28 @@ function draw() {
 
     for (var i =  0; i < current.neighbors.length; i++) {
       if (!closedSet.includes(current.neighbors[i]) && current.neighbors[i].isWall == false) {
-        var tempG =  current.g + Heuristic(current, targetNode);
 
-        if (!openSet.includes(current.neighbors[i])) {
+        var tempG =  current.g + Heuristic(current.neighbors[i], current);
+
+        // Is this a better path than before?
+        var newPath = false;
+        if (openSet.includes(current.neighbors[i])) {
+          if (tempG < current.neighbors[i].g) {
+            current.neighbors[i].g = tempG;
+            newPath = true;
+          }
+        } else {
+          current.neighbors[i].g = tempG;
+          newPath = true;
           openSet.push(current.neighbors[i]);
-        } else if (tempG >= current.neighbors[i].g) {
-          continue;
         }
 
-        current.neighbors[i].g = tempG;
-        current.neighbors[i].h = Heuristic(current.neighbors[i], targetNode);
-        current.neighbors[i].f = current.neighbors[i].g + current.neighbors[i].h;
-        current.neighbors[i].previous = current;
+        // Yes, it's a better path
+        if (newPath) {
+          current.neighbors[i].h = Heuristic(current.neighbors[i], targetNode);
+          current.neighbors[i].f = current.neighbors[i].g + current.neighbors[i].h;
+          current.neighbors[i].previous = current;
+        }
       }
     }
   } else {
@@ -255,8 +354,8 @@ function draw() {
     openSet[i].show(0, 255, 0);
   }
 
-  var temp =  current;
   path = [];
+  var temp =  current;
   path.push(temp);
   while (temp.previous != null) {
     path.push(temp.previous);
