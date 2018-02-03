@@ -24,8 +24,10 @@ var targetNode = null;
 var current = null;
 
 var isReady = false;
-var isBuilding = false;
+// var isBuilding = false;
 var isNoLoop = false;
+var isMovingStart = false;
+var isMovingTarget = false;
 
 var isControlsExist = false;
 var genWallsButton;
@@ -70,15 +72,37 @@ function reset() {
 	current = null;
 
 	isReady = false;
-	isBuilding = false;
+	// isBuilding = false;
+	isMovingStart = false;
+	isMovingTarget = false;
 	isNoLoop = false;
 	setup();
+}
+
+function mousePressed() {
+	if ( isReady === true )
+		return;
+
+	if ( mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height ) {
+		var x = int( mouseX / wid );
+		var y = int( mouseY / wid );
+
+		if ( mouseButton === LEFT ) {
+			if ( nodes[ x ][ y ] == startNode ) {
+				isMovingStart = true;
+			} else if ( nodes[ x ][ y ] == targetNode ) {
+				isMovingTarget = true;
+			}
+		}
+	}
 }
 
 function mouseReleased() {
 	if ( isReady === true )
 		return;
-	isBuilding = false;
+	// isBuilding = false;
+	isMovingStart = false;
+	isMovingTarget = false;
 }
 
 function keyPressed() {
@@ -112,7 +136,7 @@ function setup() {
 
 	if ( isControlsExist == false ) {
 		startButton = createButton( "Start" );
-		startButton.position( 500, 15 );
+		startButton.position( 800, 350 );
 		startButton.mousePressed( startSearch );
 
 		resetButton = createButton( "Reset" );
@@ -182,11 +206,27 @@ function draw() {
 		//console.log("BUILDING WALLS");
 		if ( mouseIsPressed ) {
 			if ( mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height ) {
-				//console.log("CLICKED " + int(mouseX / wid) + " " + int(mouseY / wid));
+				var x = int( mouseX / wid );
+				var y = int( mouseY / wid );
+
 				if ( mouseButton === LEFT ) {
-					nodes[ int( mouseX / wid ) ][ int( mouseY / wid ) ].isWall = true;
+					if ( nodes[ x ][ y ].isWall == false ) {
+						if ( isMovingStart ) {
+							startNode.isOpened = false;
+							startNode = nodes[ x ][ y ];
+							startNode.isWall = false;
+							openSet = [];
+							openSet.push( startNode );
+							startNode.isOpened = true;
+						} else if ( isMovingTarget ) {
+							targetNode = nodes[ x ][ y ];
+							targetNode.isWall = false;
+						} else {
+							nodes[ x ][ y ].isWall = true;
+						}
+					}
 				} else if ( mouseButton ===  RIGHT ) {
-					nodes[ int( mouseX / wid ) ][ int( mouseY / wid ) ].isWall = false;
+					nodes[ x ][ y ].isWall = false;
 				}
 			}
 			for ( var i = 0; i < arrSize; i++ ) {
