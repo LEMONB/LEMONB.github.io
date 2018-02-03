@@ -20,6 +20,7 @@ var arrSize = 25;
 var wid = 0;
 
 var nodes = new Array( arrSize );
+var savedNodes;
 var openSet = [];
 // var closedSet = [];
 var path = [];
@@ -36,10 +37,12 @@ var isMovingTarget = false;
 var isControlsExist = false;
 var genWallsButton;
 var startButton;
+var restartButton;
 var resetButton;
 var wallDens;
 var gridSize;
 var gridSizeButton;
+
 var manhCheckbox;
 var pythagorCheckbox;
 var squaresCheckbox;
@@ -70,21 +73,67 @@ function startSearch() {
 	isReady = true;
 }
 
-function reset() {
-	nodes = new Array( arrSize );
+function restartLevel() {
+	for ( var i = 0; i < arrSize; i++ ) {
+		for ( var j = 0; j < arrSize; j++ ) {
+			nodes[ i ][ j ].isOpened = false;
+			nodes[ i ][ j ].isClosed = false;
+		}
+	}
+	// nodes = new Array( arrSize );
 	openSet = [];
-	// closedSet = [];
 	path = [];
-	startNode = null;
-	targetNode = null;
+	startNode.isWall = false;
+	targetNode.isWall = false;
+	openSet.push( startNode );
+	startNode.isOpened = true;
+	// startNode = null;
+	// targetNode = null;
 	current = null;
 
 	isReady = false;
-	// isBuilding = false;
 	isMovingStart = false;
 	isMovingTarget = false;
 	isNoLoop = false;
-	setup();
+	loop();
+}
+
+function reset() {
+	wid = height / arrSize;
+
+	nodes = new Array( arrSize );
+	//Creating 2D array
+	for ( var i = 0; i < arrSize; i++ ) {
+		nodes[ i ] = new Array( arrSize );
+	}
+	for ( var i = 0; i < arrSize; i++ ) {
+		for ( var j = 0; j < arrSize; j++ ) {
+			nodes[ i ][ j ] = new Node( i, j );
+		}
+	}
+	for ( var i = 0; i < arrSize; i++ ) {
+		for ( var j = 0; j < arrSize; j++ ) {
+			nodes[ i ][ j ].pushNeighbors( nodes );
+		}
+	}
+
+	openSet = [];
+	path = [];
+	current = null;
+
+	startNode = nodes[ 0 ][ 0 ];
+	targetNode = nodes[ arrSize - 1 ][ arrSize - 1 ];
+	startNode.isWall = false;
+	targetNode.isWall = false;
+	openSet.push( startNode );
+	startNode.isOpened = true;
+
+	isReady = false;
+	isMovingStart = false;
+	isMovingTarget = false;
+	isNoLoop = false;
+	loop();
+	// setup();
 }
 
 function mousePressed() {
@@ -108,7 +157,7 @@ function mousePressed() {
 function mouseReleased() {
 	if ( isReady === true )
 		return;
-	// isBuilding = false;
+
 	isMovingStart = false;
 	isMovingTarget = false;
 }
@@ -165,8 +214,12 @@ function setup() {
 		startButton.position( 800, 350 );
 		startButton.mousePressed( startSearch );
 
+		restartButton = createButton( "Restart With Same Maze" );
+		restartButton.position( startButton.x + startButton.width + 10, startButton.y );
+		restartButton.mousePressed( restartLevel );
+
 		resetButton = createButton( "Reset" );
-		resetButton.position( startButton.x + startButton.width + 10, startButton.y );
+		resetButton.position( restartButton.x + restartButton.width + 10, startButton.y );
 		resetButton.mousePressed( reset );
 
 		wallDens = createSlider( 0, 100, 25 );
@@ -183,6 +236,7 @@ function setup() {
 		gridSizeButton = createButton( "Set Size" );
 		gridSizeButton.position( gridSize.x + gridSize.width + 20, gridSize.y );
 		gridSizeButton.mousePressed( setSizeOfGrid );
+
 
 		manhCheckbox = createCheckbox( "Manhattan distance" );
 		manhCheckbox.position( gridSize.x, gridSize.y + gridSize.height + 20 );
