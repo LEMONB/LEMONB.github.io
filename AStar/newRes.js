@@ -7,8 +7,12 @@ function removeFromArray( arr, obj ) {
 }
 
 function Heuristic( from, target ) {
-	//var d = abs(from.i - target.i) + abs(from.j - target.j);
-	var d = dist( from.i, from.j, target.i, target.j );
+	if ( currentHeur == 1 )
+		var d = abs( from.i - target.i ) + abs( from.j - target.j );
+	else if ( currentHeur == 2 )
+		var d = dist( from.i, from.j, target.i, target.j );
+	else if ( currentHeur == 3 )
+		var d = sq( target.i - from.i ) + sq( target.j - from.j );
 	return d;
 }
 
@@ -36,6 +40,10 @@ var resetButton;
 var wallDens;
 var gridSize;
 var gridSizeButton;
+var manhCheckbox;
+var pythagorCheckbox;
+var squaresCheckbox;
+var currentHeur = 3;
 
 document.oncontextmenu = function() {
 	return false;
@@ -129,6 +137,24 @@ function keyPressed() {
 	}
 }
 
+function changeToManh() {
+	currentHeur = 1;
+	pythagorCheckbox.checked( false );
+	squaresCheckbox.checked( false );
+}
+
+function changeToPyth() {
+	currentHeur = 2;
+	manhCheckbox.checked( false );
+	squaresCheckbox.checked( false );
+}
+
+function changeToSquares() {
+	currentHeur = 3;
+	pythagorCheckbox.checked( false );
+	manhCheckbox.checked( false );
+}
+
 function setup() {
 	createCanvas( 750, 750 );
 	console.log( "START" );
@@ -157,6 +183,18 @@ function setup() {
 		gridSizeButton = createButton( "Set Size" );
 		gridSizeButton.position( gridSize.x + gridSize.width + 20, gridSize.y );
 		gridSizeButton.mousePressed( setSizeOfGrid );
+
+		manhCheckbox = createCheckbox( "Manhattan distance" );
+		manhCheckbox.position( gridSize.x, gridSize.y + gridSize.height + 20 );
+		manhCheckbox.changed( changeToManh );
+
+		pythagorCheckbox = createCheckbox( "Pythagorean distance" );
+		pythagorCheckbox.position( manhCheckbox.x, manhCheckbox.y + manhCheckbox.height + 10 );
+		pythagorCheckbox.changed( changeToPyth );
+
+		squaresCheckbox = createCheckbox( "Square distance", true );
+		squaresCheckbox.position( pythagorCheckbox.x, pythagorCheckbox.y + pythagorCheckbox.height + 10 );
+		squaresCheckbox.changed( changeToSquares );
 
 		isControlsExist = true;
 	}
