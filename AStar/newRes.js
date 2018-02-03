@@ -7,12 +7,17 @@ function removeFromArray( arr, obj ) {
 }
 
 function Heuristic( from, target ) {
-	if ( currentHeur == 1 )
-		var d = abs( from.i - target.i ) + abs( from.j - target.j );
-	else if ( currentHeur == 2 )
-		var d = dist( from.i, from.j, target.i, target.j );
-	else if ( currentHeur == 3 )
-		var d = sq( target.i - from.i ) + sq( target.j - from.j );
+	var d = 0.0;
+	if ( currentHeur == 1 ) {
+		d = abs( from.i - target.i ) + abs( from.j - target.j );
+		// d += 1;
+	} else if ( currentHeur == 2 )
+		d = dist( from.i, from.j, target.i, target.j );
+	else {
+		d = sq( target.i - from.i ) + sq( target.j - from.j );
+		// d += 10;
+	}
+	// console.log( currentHeur + ", " + from.i + " " + from.j + " -> " + target.i + " " + target.j + ", dist: " + d );
 	return d;
 }
 
@@ -48,6 +53,9 @@ var pythagorCheckbox;
 var squaresCheckbox;
 var currentHeur = 3;
 
+var txt;
+var timer = 0.0;
+
 document.oncontextmenu = function() {
 	return false;
 }
@@ -71,6 +79,7 @@ function generateWalls() {
 
 function startSearch() {
 	isReady = true;
+	timer = 0.0;
 }
 
 function restartLevel() {
@@ -250,6 +259,14 @@ function setup() {
 		squaresCheckbox.position( pythagorCheckbox.x, pythagorCheckbox.y + pythagorCheckbox.height + 10 );
 		squaresCheckbox.changed( changeToSquares );
 
+		txt = createP( "" );
+
+		function timeIt() {
+			// console.log( timer );
+			timer++;
+		}
+		setInterval( timeIt, 1000 );
+
 		isControlsExist = true;
 	}
 
@@ -269,8 +286,6 @@ function setup() {
 		}
 	}
 
-	//startNode = nodes[int(random(arrSize-1))][int(random(arrSize-1))];
-	//targetNode = nodes[int(random(arrSize-1))][int(random(arrSize-1))];
 	startNode = nodes[ 0 ][ 0 ];
 	targetNode = nodes[ arrSize - 1 ][ arrSize - 1 ];
 	startNode.isWall = false;
@@ -281,7 +296,6 @@ function setup() {
 }
 
 function draw() {
-	// console.log(openSet.length + " " + closedSet.length);
 	if ( isNoLoop == true ) {
 		return;
 	}
@@ -351,6 +365,8 @@ function draw() {
 			isNoLoop = true;
 
 			reconstructPath( current );
+			var steps = path.length - 1;
+			txt.html( "Steps: " + steps + "      Time: " + timer + " seconds" );
 			noLoop();
 			// return;
 		}
