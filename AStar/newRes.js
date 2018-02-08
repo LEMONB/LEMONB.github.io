@@ -40,20 +40,15 @@ let isMovingStart = false;
 let isMovingTarget = false;
 
 let isControlsExist = false;
-let genWallsButton;
-let startButton;
-let restartButton;
-let resetButton;
 let wallDens;
 let gridSize;
-let gridSizeButton;
 
 let manhCheckbox;
 let pythagorCheckbox;
 let squaresCheckbox;
 let currentHeur = 2;
 
-let txt;
+let lastRunInfo;
 let timer = 0.0;
 
 document.oncontextmenu = function() {
@@ -219,22 +214,22 @@ function setup() {
 	wid = height / arrSize;
 
 	if ( isControlsExist == false ) {
-		startButton = createButton( "Start" );
+		let startButton = createButton( "Start" );
 		startButton.position( 800, 350 );
 		startButton.mousePressed( startSearch );
 
-		restartButton = createButton( "Restart With Same Maze" );
+		let restartButton = createButton( "Restart With Same Maze" );
 		restartButton.position( startButton.x + startButton.width + 10, startButton.y );
 		restartButton.mousePressed( restartLevel );
 
-		resetButton = createButton( "Reset" );
+		let resetButton = createButton( "Reset" );
 		resetButton.position( restartButton.x + restartButton.width + 10, startButton.y );
 		resetButton.mousePressed( reset );
 
 		wallDens = createSlider( 0, 100, 25 );
 		wallDens.position( startButton.x, startButton.y + startButton.height + 10 );
 
-		genWallsButton = createButton( "Generate Walls" );
+		let genWallsButton = createButton( "Generate Walls" );
 		genWallsButton.position( wallDens.x + wallDens.width + 20, wallDens.y );
 		genWallsButton.mousePressed( generateWalls );
 
@@ -242,7 +237,7 @@ function setup() {
 		gridSize = createSlider( 5, 100, 25 );
 		gridSize.position( wallDens.x, wallDens.y + wallDens.height + 10 );
 
-		gridSizeButton = createButton( "Set Size" );
+		let gridSizeButton = createButton( "Set Size" );
 		gridSizeButton.position( gridSize.x + gridSize.width + 20, gridSize.y );
 		gridSizeButton.mousePressed( setSizeOfGrid );
 
@@ -251,15 +246,15 @@ function setup() {
 		manhCheckbox.position( gridSize.x, gridSize.y + gridSize.height + 20 );
 		manhCheckbox.changed( changeToManh );
 
-		pythagorCheckbox = createCheckbox( "Pythagorean distance" );
+		pythagorCheckbox = createCheckbox( "Pythagorean distance", true );
 		pythagorCheckbox.position( manhCheckbox.x, manhCheckbox.y + manhCheckbox.height + 10 );
 		pythagorCheckbox.changed( changeToPyth );
 
-		squaresCheckbox = createCheckbox( "Square distance", true );
+		squaresCheckbox = createCheckbox( "Square distance" );
 		squaresCheckbox.position( pythagorCheckbox.x, pythagorCheckbox.y + pythagorCheckbox.height + 10 );
 		squaresCheckbox.changed( changeToSquares );
 
-		txt = createP( "" );
+		lastRunInfo = createP( "" );
 
 		function timeIt() {
 			// console.log( timer );
@@ -374,7 +369,7 @@ function draw() {
 			// }
 			reconstructPath( current );
 			let steps = path.length - 1;
-			txt.html( "Steps: " + steps + "      Time: " + timer + " seconds" );
+			lastRunInfo.html( "Steps: " + steps + "      Time: " + timer + " seconds" );
 			noLoop();
 			// return;
 		}
