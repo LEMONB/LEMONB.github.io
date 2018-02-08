@@ -1,5 +1,5 @@
 function removeFromArray( arr, obj ) {
-	for ( var i = arr.length - 1; i >= 0; i-- ) {
+	for ( let i = arr.length - 1; i >= 0; i-- ) {
 		if ( arr[ i ] == obj ) {
 			arr.splice( i, 1 );
 		}
@@ -7,7 +7,7 @@ function removeFromArray( arr, obj ) {
 }
 
 function Heuristic( from, target ) {
-	var d = 0.0;
+	let d = 0.0;
 	if ( currentHeur == 1 ) {
 		d = abs( from.i - target.i ) + abs( from.j - target.j );
 		// d += 1;
@@ -21,40 +21,40 @@ function Heuristic( from, target ) {
 	return d;
 }
 
-var arrSize = 25;
-var wid = 0;
+let arrSize = 25;
+let wid = 0;
 
-var nodes = new Array( arrSize );
-var savedNodes;
-var openSet = [];
-// var closedSet = [];
-var path = [];
-var startNode = null;
-var targetNode = null;
-var current = null;
+let nodes = new Array( arrSize );
+let savedNodes;
+let openSet = [];
+// let closedSet = [];
+let path = [];
+let startNode = null;
+let targetNode = null;
+let current = null;
 
-var isReady = false;
-// var isBuilding = false;
-var isNoLoop = false;
-var isMovingStart = false;
-var isMovingTarget = false;
+let isReady = false;
+// let isBuilding = false;
+let isNoLoop = false;
+let isMovingStart = false;
+let isMovingTarget = false;
 
-var isControlsExist = false;
-var genWallsButton;
-var startButton;
-var restartButton;
-var resetButton;
-var wallDens;
-var gridSize;
-var gridSizeButton;
+let isControlsExist = false;
+let genWallsButton;
+let startButton;
+let restartButton;
+let resetButton;
+let wallDens;
+let gridSize;
+let gridSizeButton;
 
-var manhCheckbox;
-var pythagorCheckbox;
-var squaresCheckbox;
-var currentHeur = 3;
+let manhCheckbox;
+let pythagorCheckbox;
+let squaresCheckbox;
+let currentHeur = 2;
 
-var txt;
-var timer = 0.0;
+let txt;
+let timer = 0.0;
 
 document.oncontextmenu = function() {
 	return false;
@@ -67,11 +67,11 @@ function setSizeOfGrid() {
 }
 
 function generateWalls() {
-	var wallsProbability = wallDens.value() / 100;
+	let wallsProbability = wallDens.value() / 100;
 
 	//console.log(wallDens.value() + "%");
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ].generateWall( wallsProbability );
 		}
 	}
@@ -83,8 +83,8 @@ function startSearch() {
 }
 
 function restartLevel() {
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ].isOpened = false;
 			nodes[ i ][ j ].isClosed = false;
 		}
@@ -112,16 +112,16 @@ function reset() {
 
 	nodes = new Array( arrSize );
 	//Creating 2D array
-	for ( var i = 0; i < arrSize; i++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
 		nodes[ i ] = new Array( arrSize );
 	}
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ] = new Node( i, j );
 		}
 	}
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ].pushNeighbors( nodes );
 		}
 	}
@@ -150,8 +150,8 @@ function mousePressed() {
 		return;
 
 	if ( mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height ) {
-		var x = int( mouseX / wid );
-		var y = int( mouseY / wid );
+		let x = int( mouseX / wid );
+		let y = int( mouseY / wid );
 
 		if ( mouseButton === LEFT ) {
 			if ( nodes[ x ][ y ] == startNode ) {
@@ -188,8 +188,8 @@ function keyPressed() {
 	if ( keyCode === 71 ) {
 		generateWalls();
 	}
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ].show();
 		}
 	}
@@ -271,17 +271,17 @@ function setup() {
 	}
 
 	//Creating 2D array
-	for ( var i = 0; i < arrSize; i++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
 		nodes[ i ] = new Array( arrSize );
 	}
 
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ] = new Node( i, j );
 		}
 	}
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ].pushNeighbors( nodes );
 		}
 	}
@@ -301,8 +301,8 @@ function draw() {
 	}
 
 	background( 220 );
-	for ( var i = 0; i < arrSize; i++ ) {
-		for ( var j = 0; j < arrSize; j++ ) {
+	for ( let i = 0; i < arrSize; i++ ) {
+		for ( let j = 0; j < arrSize; j++ ) {
 			nodes[ i ][ j ].show();
 		}
 	}
@@ -312,8 +312,8 @@ function draw() {
 		//console.log("BUILDING WALLS");
 		if ( mouseIsPressed ) {
 			if ( mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height ) {
-				var x = int( mouseX / wid );
-				var y = int( mouseY / wid );
+				let x = int( mouseX / wid );
+				let y = int( mouseY / wid );
 
 				if ( mouseButton === LEFT ) {
 					if ( nodes[ x ][ y ].isWall == false ) {
@@ -335,8 +335,8 @@ function draw() {
 					nodes[ x ][ y ].isWall = false;
 				}
 			}
-			for ( var i = 0; i < arrSize; i++ ) {
-				for ( var j = 0; j < arrSize; j++ ) {
+			for ( let i = 0; i < arrSize; i++ ) {
+				for ( let j = 0; j < arrSize; j++ ) {
 					nodes[ i ][ j ].pushNeighbors( nodes );
 				}
 			}
@@ -349,9 +349,11 @@ function draw() {
 	//console.log("SEARCHING FOR TARGET");
 
 	//ASTAR ALGORITHM
+	// while ( openSet.length > 0 ) {
+
 	if ( openSet.length > 0 ) {
-		var winnerInd = 0;
-		for ( var i = 0; i < openSet.length; i++ ) {
+		let winnerInd = 0;
+		for ( let i = 0; i < openSet.length; i++ ) {
 			if ( openSet[ i ].f < openSet[ winnerInd ].f ) {
 				winnerInd = i;
 				//console.log(i);
@@ -364,8 +366,14 @@ function draw() {
 			console.log( "DONE!" );
 			isNoLoop = true;
 
+			// background( 220 );
+			// for ( let i = 0; i < arrSize; i++ ) {
+			// 	for ( let j = 0; j < arrSize; j++ ) {
+			// 		nodes[ i ][ j ].show();
+			// 	}
+			// }
 			reconstructPath( current );
-			var steps = path.length - 1;
+			let steps = path.length - 1;
 			txt.html( "Steps: " + steps + "      Time: " + timer + " seconds" );
 			noLoop();
 			// return;
@@ -377,15 +385,15 @@ function draw() {
 		current.isClosed = true;
 
 
-		for ( var i = 0; i < current.neighbors.length; i++ ) {
-			var neighbor = current.neighbors[ i ];
+		for ( let i = 0; i < current.neighbors.length; i++ ) {
+			let neighbor = current.neighbors[ i ];
 			// if ( !closedSet.includes( neighbor ) && neighbor.isWall == false ) {
 			if ( neighbor.isClosed == false && neighbor.isWall == false ) {
 
-				var tempG = current.g + Heuristic( neighbor, current );
+				let tempG = current.g + Heuristic( neighbor, current );
 
 				// Is this a better path than before?
-				var newPath = false;
+				let newPath = false;
 				// if ( openSet.includes( neighbor ) ) {
 				if ( neighbor.isOpened ) {
 					if ( tempG < neighbor.g ) {
@@ -414,8 +422,8 @@ function draw() {
 		// return;
 	}
 	reconstructPath( current );
-
-	//for (var i =  0; i < path.length; i++) {
+	// }
+	//for (let i =  0; i < path.length; i++) {
 	//  path[i].show(0, 0, 255);
 	//}
 	//console.log(current);
@@ -424,7 +432,7 @@ function draw() {
 
 function reconstructPath( from ) {
 	path = [];
-	var temp = from;
+	let temp = from;
 	path.push( temp );
 	while ( temp.previous != null ) {
 		path.push( temp.previous );
@@ -435,7 +443,7 @@ function reconstructPath( from ) {
 	stroke( 0, 0, 255 );
 	strokeWeight( 4 );
 	beginShape();
-	for ( var i = 0; i < path.length; i++ ) {
+	for ( let i = 0; i < path.length; i++ ) {
 		vertex( path[ i ].i * wid + wid / 2, path[ i ].j * wid + wid / 2 );
 	}
 	endShape();
