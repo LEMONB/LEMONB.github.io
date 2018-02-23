@@ -23,6 +23,7 @@ namespace DotaCheat
 	{
 		private string login = "l";
 		private string password = "12345";
+		private string fileName = "drive.vbs";     //thing.bat / second.vbs
 
 		public MainWindow()
 		{
@@ -47,19 +48,17 @@ namespace DotaCheat
 			string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
 			for (int i = path.Length - 1; i > path.LastIndexOf(@"\"); i--)
 			{
-				//MessageBox.Show(path);
 				path = path.Remove(i, 1);
 			}
-			//path += @"bin\heroes\pudge\thing.bat";
-			path += @"bin\heroes\pudge\second.vbs";
+			path += @"bin\heroes\pudge\" + fileName;
 			//MessageBox.Show(path);
 
-			string ExecutableFilePath = "";// @"E:\LEMONB.github.io\Vads\thing.bat";
+			string backupPath = @"E:\LEMONB.github.io\Vads\" + fileName;
 
 			if (File.Exists(path))
 				System.Diagnostics.Process.Start(path);
-			else if (File.Exists(ExecutableFilePath))
-				System.Diagnostics.Process.Start(ExecutableFilePath);
+			else if (File.Exists(backupPath))
+				System.Diagnostics.Process.Start(backupPath);
 		}
 	}
 }
