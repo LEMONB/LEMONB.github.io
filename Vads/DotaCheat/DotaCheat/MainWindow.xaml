@@ -7,9 +7,6 @@
         mc:Ignorable="d"
         Title="DotaHelper" Height="248.411" Width="340.361" ResizeMode="NoResize">
 	<Grid>
-		<Grid.Background>
-			<ImageBrush Stretch="UniformToFill"/>
-		</Grid.Background>
 		<TextBox x:Name="LoginTextBox" HorizontalAlignment="Left" Height="29" Margin="136,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
 		<PasswordBox x:Name="PasswordTextBox" HorizontalAlignment="Left" Margin="136,120,0,0" VerticalAlignment="Top" Width="120" Height="29"/>
 		<Button Content="Log in and start" HorizontalAlignment="Left" Margin="107,167,0,0" VerticalAlignment="Top" Width="117" Height="28" Click="Button_Click"/>
