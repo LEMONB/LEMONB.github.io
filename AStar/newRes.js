@@ -105,6 +105,7 @@ function reset() {
 function startSearch() {
   AStar.isReady = true;
   AStar.timer = 0;
+  startTimer();
 }
 
 function restartLevel() {
