@@ -1,446 +1,411 @@
-function removeFromArray( arr, obj ) {
-	for ( let i = arr.length - 1; i >= 0; i-- ) {
-		if ( arr[ i ] == obj ) {
-			arr.splice( i, 1 );
-		}
-	}
+const AStar = {
+  arrSize: 25,
+  wid: 0,
+  nodes: [],
+  openSet: [],
+  path: [],
+  startNode: null,
+  targetNode: null,
+  current: null,
+  isReady: false,
+  isNoLoop: false,
+  isMovingStart: false,
+  isMovingTarget: false,
+  isControlsExist: false,
+  currentHeur: 2,
+  timer: 0,
+  intervalId: null,
+  isLightTheme: false,
+  colors: {
+    bg: [15, 15, 26],
+    grid: [40, 40, 60],
+    wall: [61, 61, 92],
+    path: [96, 165, 250],
+    pathGlow: [96, 165, 250, 80]
+  }
+};
+
+function updateThemeColors() {
+  if (AStar.isLightTheme) {
+    AStar.colors = {
+      bg: [248, 250, 252],
+      grid: [226, 232, 240],
+      wall: [148, 163, 184],
+      path: [37, 99, 235],
+      pathGlow: [37, 99, 235, 60]
+    };
+  } else {
+    AStar.colors = {
+      bg: [15, 15, 26],
+      grid: [40, 40, 60],
+      wall: [61, 61, 92],
+      path: [96, 165, 250],
+      pathGlow: [96, 165, 250, 80]
+    };
+  }
 }
 
-function Heuristic( from, target ) {
-	let d = 0.0;
-	if ( currentHeur == 1 ) {
-		d = abs( from.i - target.i ) + abs( from.j - target.j );
-		// d += 1;
-	} else if ( currentHeur == 2 )
-		d = dist( from.i, from.j, target.i, target.j );
-	else {
-		d = sq( target.i - from.i ) + sq( target.j - from.j );
-		// d += 10;
-	}
-	// console.log( currentHeur + ", " + from.i + " " + from.j + " -> " + target.i + " " + target.j + ", dist: " + d );
-	return d;
+function removeFromArray(arr, obj) {
+  const index = arr.indexOf(obj);
+  if (index > -1) {
+    arr.splice(index, 1);
+  }
 }
 
-let arrSize = 25;
-let wid = 0;
-
-let nodes = new Array( arrSize );
-let savedNodes;
-let openSet = [];
-// let closedSet = [];
-let path = [];
-let startNode = null;
-let targetNode = null;
-let current = null;
-
-let isReady = false;
-// let isBuilding = false;
-let isNoLoop = false;
-let isMovingStart = false;
-let isMovingTarget = false;
-
-let isControlsExist = false;
-let wallDens;
-let gridSize;
-
-let manhCheckbox;
-let pythagorCheckbox;
-let squaresCheckbox;
-let currentHeur = 2;
-
-let lastRunInfo;
-let timer = 0.0;
-
-document.oncontextmenu = function() {
-	return false;
+function Heuristic(a, b) {
+  switch (AStar.currentHeur) {
+    case 1:
+      return abs(a.i - b.i) + abs(a.j - b.j);
+    case 2:
+      return dist(a.i, a.j, b.i, b.j);
+    default:
+      return sq(b.i - a.i) + sq(b.j - a.j);
+  }
 }
 
-function setSizeOfGrid() {
-	arrSize = gridSize.value();
-	wid = height / arrSize;
-	reset();
+function createGrid() {
+  AStar.nodes = [];
+  for (let i = 0; i < AStar.arrSize; i++) {
+    AStar.nodes[i] = [];
+    for (let j = 0; j < AStar.arrSize; j++) {
+      AStar.nodes[i][j] = new Node(i, j);
+    }
+  }
+  for (let i = 0; i < AStar.arrSize; i++) {
+    for (let j = 0; j < AStar.arrSize; j++) {
+      AStar.nodes[i][j].pushNeighbors(AStar.nodes);
+    }
+  }
 }
 
-function generateWalls() {
-	let wallsProbability = wallDens.value() / 100;
-
-	//console.log(wallDens.value() + "%");
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ].generateWall( wallsProbability );
-		}
-	}
-}
-
-function startSearch() {
-	isReady = true;
-	timer = 0.0;
-}
-
-function restartLevel() {
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ].isOpened = false;
-			nodes[ i ][ j ].isClosed = false;
-		}
-	}
-	// nodes = new Array( arrSize );
-	openSet = [];
-	path = [];
-	startNode.isWall = false;
-	targetNode.isWall = false;
-	openSet.push( startNode );
-	startNode.isOpened = true;
-	// startNode = null;
-	// targetNode = null;
-	current = null;
-
-	isReady = false;
-	isMovingStart = false;
-	isMovingTarget = false;
-	isNoLoop = false;
-	loop();
+function initNodes() {
+  createGrid();
+  AStar.startNode = AStar.nodes[0][0];
+  AStar.targetNode = AStar.nodes[AStar.arrSize - 1][AStar.arrSize - 1];
+  AStar.startNode.isWall = false;
+  AStar.targetNode.isWall = false;
+  AStar.openSet = [AStar.startNode];
+  AStar.startNode.isOpened = true;
+  AStar.path = [];
+  AStar.current = null;
 }
 
 function reset() {
-	wid = height / arrSize;
-
-	nodes = new Array( arrSize );
-	//Creating 2D array
-	for ( let i = 0; i < arrSize; i++ ) {
-		nodes[ i ] = new Array( arrSize );
-	}
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ] = new Node( i, j );
-		}
-	}
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ].pushNeighbors( nodes );
-		}
-	}
-
-	openSet = [];
-	path = [];
-	current = null;
-
-	startNode = nodes[ 0 ][ 0 ];
-	targetNode = nodes[ arrSize - 1 ][ arrSize - 1 ];
-	startNode.isWall = false;
-	targetNode.isWall = false;
-	openSet.push( startNode );
-	startNode.isOpened = true;
-
-	isReady = false;
-	isMovingStart = false;
-	isMovingTarget = false;
-	isNoLoop = false;
-	loop();
-	// setup();
+  AStar.wid = height / AStar.arrSize;
+  initNodes();
+  AStar.isReady = false;
+  AStar.isMovingStart = false;
+  AStar.isMovingTarget = false;
+  AStar.isNoLoop = false;
+  AStar.timer = 0;
+  updateStats();
+  loop();
 }
 
-function mousePressed() {
-	if ( isReady === true )
-		return;
-
-	if ( mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height ) {
-		let x = int( mouseX / wid );
-		let y = int( mouseY / wid );
-
-		if ( mouseButton === LEFT ) {
-			if ( nodes[ x ][ y ] == startNode ) {
-				isMovingStart = true;
-			} else if ( nodes[ x ][ y ] == targetNode ) {
-				isMovingTarget = true;
-			}
-		}
-	}
+function startSearch() {
+  AStar.isReady = true;
+  AStar.timer = 0;
 }
 
-function mouseReleased() {
-	if ( isReady === true )
-		return;
-
-	isMovingStart = false;
-	isMovingTarget = false;
+function restartLevel() {
+  for (let i = 0; i < AStar.arrSize; i++) {
+    for (let j = 0; j < AStar.arrSize; j++) {
+      AStar.nodes[i][j].isOpened = false;
+      AStar.nodes[i][j].isClosed = false;
+    }
+  }
+  AStar.openSet = [];
+  AStar.path = [];
+  AStar.startNode.isWall = false;
+  AStar.targetNode.isWall = false;
+  AStar.openSet.push(AStar.startNode);
+  AStar.startNode.isOpened = true;
+  AStar.current = null;
+  AStar.isReady = false;
+  AStar.isMovingStart = false;
+  AStar.isMovingTarget = false;
+  AStar.isNoLoop = false;
+  AStar.timer = 0;
+  updateStats();
+  loop();
 }
 
-function keyPressed() {
-	if ( keyCode === 82 ) {
-		reset();
-	}
-	//console.log(isReady);
-
-	if ( isReady === true ) {
-		return;
-	}
-
-	if ( keyCode === 66 ) {
-		isReady = true;
-	}
-
-	if ( keyCode === 71 ) {
-		generateWalls();
-	}
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ].show();
-		}
-	}
+function generateWalls() {
+  const wallsProbability = document.getElementById('wallDensity').value / 100;
+  for (let i = 0; i < AStar.arrSize; i++) {
+    for (let j = 0; j < AStar.arrSize; j++) {
+      AStar.nodes[i][j].generateWall(wallsProbability);
+    }
+  }
 }
 
-function changeToManh() {
-	currentHeur = 1;
-	pythagorCheckbox.checked( false );
-	squaresCheckbox.checked( false );
+function setSizeOfGrid() {
+  AStar.arrSize = parseInt(document.getElementById('gridSize').value);
+  reset();
 }
 
-function changeToPyth() {
-	currentHeur = 2;
-	manhCheckbox.checked( false );
-	squaresCheckbox.checked( false );
+function startTimer() {
+  AStar.timer = 0;
+  if (AStar.intervalId) clearInterval(AStar.intervalId);
+  AStar.intervalId = setInterval(() => {
+    if (AStar.isReady) {
+      AStar.timer++;
+      updateStats();
+    }
+  }, 1000);
 }
 
-function changeToSquares() {
-	currentHeur = 3;
-	pythagorCheckbox.checked( false );
-	manhCheckbox.checked( false );
+function updateStats() {
+  const infoEl = document.getElementById('runInfo');
+  if (infoEl) {
+    const steps = AStar.path.length - 1;
+    infoEl.textContent = `Steps: ${steps > 0 ? steps : 0} | Time: ${AStar.timer}s`;
+  }
+}
+
+function reconstructPath(from) {
+  AStar.path = [];
+  let temp = from;
+  AStar.path.push(temp);
+  while (temp.previous) {
+    AStar.path.push(temp.previous);
+    temp = temp.previous;
+  }
+
+  const c = AStar.colors.path;
+  const cg = AStar.colors.pathGlow;
+  
+  noFill();
+  stroke(c[0], c[1], c[2]);
+  strokeWeight(4);
+  strokeCap(ROUND);
+  strokeJoin(ROUND);
+  beginShape();
+  for (let i = 0; i < AStar.path.length; i++) {
+    const node = AStar.path[i];
+    vertex(node.i * AStar.wid + AStar.wid / 2, node.j * AStar.wid + AStar.wid / 2);
+  }
+  endShape();
+  
+  stroke(cg[0], cg[1], cg[2], cg[3]);
+  strokeWeight(10);
+  beginShape();
+  for (let i = 0; i < AStar.path.length; i++) {
+    const node = AStar.path[i];
+    vertex(node.i * AStar.wid + AStar.wid / 2, node.j * AStar.wid + AStar.wid / 2);
+  }
+  endShape();
+  
+  noStroke();
+}
+
+function handleMouseInteraction() {
+  if (AStar.isReady) return;
+  if (!mouseIsPressed) return;
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+
+  const x = floor(mouseX / AStar.wid);
+  const y = floor(mouseY / AStar.wid);
+
+  if (x < 0 || x >= AStar.arrSize || y < 0 || y >= AStar.arrSize) return;
+
+  const node = AStar.nodes[x][y];
+
+  if (mouseButton === LEFT) {
+    if (node === AStar.startNode) {
+      AStar.isMovingStart = true;
+    } else if (node === AStar.targetNode) {
+      AStar.isMovingTarget = true;
+    } else {
+      node.isWall = true;
+    }
+  } else if (mouseButton === RIGHT) {
+    node.isWall = false;
+  }
+
+  for (let i = 0; i < AStar.arrSize; i++) {
+    for (let j = 0; j < AStar.arrSize; j++) {
+      AStar.nodes[i][j].pushNeighbors(AStar.nodes);
+    }
+  }
+}
+
+function moveNodes() {
+  if (AStar.isReady) return;
+  if (!mouseIsPressed) return;
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+
+  const x = floor(mouseX / AStar.wid);
+  const y = floor(mouseY / AStar.wid);
+
+  if (x < 0 || x >= AStar.arrSize || y < 0 || y >= AStar.arrSize) return;
+
+  if (AStar.isMovingStart) {
+    AStar.startNode.isOpened = false;
+    AStar.startNode = AStar.nodes[x][y];
+    AStar.startNode.isWall = false;
+    AStar.openSet = [AStar.startNode];
+    AStar.startNode.isOpened = true;
+  } else if (AStar.isMovingTarget) {
+    AStar.targetNode = AStar.nodes[x][y];
+    AStar.targetNode.isWall = false;
+  }
+}
+
+function runAStarStep() {
+  if (AStar.openSet.length === 0) {
+    console.log('NO SOLUTION');
+    AStar.isNoLoop = true;
+    noLoop();
+    return;
+  }
+
+  let winnerIdx = 0;
+  for (let i = 0; i < AStar.openSet.length; i++) {
+    if (AStar.openSet[i].f < AStar.openSet[winnerIdx].f) {
+      winnerIdx = i;
+    }
+  }
+
+  AStar.current = AStar.openSet[winnerIdx];
+
+  if (AStar.current === AStar.targetNode) {
+    console.log('DONE!');
+    AStar.isNoLoop = true;
+    reconstructPath(AStar.current);
+    const steps = AStar.path.length - 1;
+    document.getElementById('runInfo').textContent = `Steps: ${steps} | Time: ${AStar.timer}s`;
+    clearInterval(AStar.intervalId);
+    noLoop();
+    return;
+  }
+
+  removeFromArray(AStar.openSet, AStar.current);
+  AStar.current.isOpened = false;
+  AStar.current.isClosed = true;
+
+  for (let i = 0; i < AStar.current.neighbors.length; i++) {
+    const neighbor = AStar.current.neighbors[i];
+    if (neighbor.isClosed || neighbor.isWall) continue;
+
+    const tempG = AStar.current.g + Heuristic(neighbor, AStar.current);
+    let newPath = false;
+
+    if (neighbor.isOpened) {
+      if (tempG < neighbor.g) {
+        neighbor.g = tempG;
+        newPath = true;
+      }
+    } else {
+      neighbor.g = tempG;
+      newPath = true;
+      AStar.openSet.push(neighbor);
+      neighbor.isOpened = true;
+    }
+
+    if (newPath) {
+      neighbor.h = Heuristic(neighbor, AStar.targetNode);
+      neighbor.f = neighbor.g + neighbor.h;
+      neighbor.previous = AStar.current;
+    }
+  }
+
+  reconstructPath(AStar.current);
 }
 
 function setup() {
-	createCanvas( 750, 750 );
-	console.log( "START" );
-	wid = height / arrSize;
-
-	if ( isControlsExist == false ) {
-		let startButton = createButton( "Start" );
-		startButton.position( 800, 350 );
-		startButton.mousePressed( startSearch );
-
-		let restartButton = createButton( "Restart With Same Maze" );
-		restartButton.position( startButton.x + startButton.width + 10, startButton.y );
-		restartButton.mousePressed( restartLevel );
-
-		let resetButton = createButton( "Reset" );
-		resetButton.position( restartButton.x + restartButton.width + 10, startButton.y );
-		resetButton.mousePressed( reset );
-
-		wallDens = createSlider( 0, 100, 25 );
-		wallDens.position( startButton.x, startButton.y + startButton.height + 10 );
-
-		let genWallsButton = createButton( "Generate Walls" );
-		genWallsButton.position( wallDens.x + wallDens.width + 20, wallDens.y );
-		genWallsButton.mousePressed( generateWalls );
-
-
-		gridSize = createSlider( 5, 100, 25 );
-		gridSize.position( wallDens.x, wallDens.y + wallDens.height + 10 );
-
-		let gridSizeButton = createButton( "Set Size" );
-		gridSizeButton.position( gridSize.x + gridSize.width + 20, gridSize.y );
-		gridSizeButton.mousePressed( setSizeOfGrid );
-
-
-		manhCheckbox = createCheckbox( "Manhattan distance" );
-		manhCheckbox.position( gridSize.x, gridSize.y + gridSize.height + 20 );
-		manhCheckbox.changed( changeToManh );
-
-		pythagorCheckbox = createCheckbox( "Pythagorean distance", true );
-		pythagorCheckbox.position( manhCheckbox.x, manhCheckbox.y + manhCheckbox.height + 10 );
-		pythagorCheckbox.changed( changeToPyth );
-
-		squaresCheckbox = createCheckbox( "Square distance" );
-		squaresCheckbox.position( pythagorCheckbox.x, pythagorCheckbox.y + pythagorCheckbox.height + 10 );
-		squaresCheckbox.changed( changeToSquares );
-
-		lastRunInfo = createP( "" );
-
-		function timeIt() {
-			// console.log( timer );
-			timer++;
-		}
-		setInterval( timeIt, 1000 );
-
-		isControlsExist = true;
-	}
-
-	//Creating 2D array
-	for ( let i = 0; i < arrSize; i++ ) {
-		nodes[ i ] = new Array( arrSize );
-	}
-
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ] = new Node( i, j );
-		}
-	}
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ].pushNeighbors( nodes );
-		}
-	}
-
-	startNode = nodes[ 0 ][ 0 ];
-	targetNode = nodes[ arrSize - 1 ][ arrSize - 1 ];
-	startNode.isWall = false;
-	targetNode.isWall = false;
-	openSet.push( startNode );
-	startNode.isOpened = true;
-	loop();
+  createCanvas(750, 750).parent('canvas-container');
+  AStar.wid = height / AStar.arrSize;
+  initNodes();
+  AStar.timer = 0;
+  updateStats();
+  loop();
 }
 
 function draw() {
-	if ( isNoLoop == true ) {
-		return;
-	}
+  background(...AStar.colors.bg);
+  drawGrid();
 
-	background( 220 );
-	for ( let i = 0; i < arrSize; i++ ) {
-		for ( let j = 0; j < arrSize; j++ ) {
-			nodes[ i ][ j ].show();
-		}
-	}
+  for (let i = 0; i < AStar.arrSize; i++) {
+    for (let j = 0; j < AStar.arrSize; j++) {
+      AStar.nodes[i][j].show();
+    }
+  }
 
-	//MOUSE CONTROLS FOR BUILDING WALLS
-	if ( isReady == false ) {
-		//console.log("BUILDING WALLS");
-		if ( mouseIsPressed ) {
-			if ( mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height ) {
-				let x = int( mouseX / wid );
-				let y = int( mouseY / wid );
+  if (!AStar.isReady) {
+    moveNodes();
+    handleMouseInteraction();
+    return;
+  }
 
-				if ( mouseButton === LEFT ) {
-					if ( nodes[ x ][ y ].isWall == false ) {
-						if ( isMovingStart ) {
-							startNode.isOpened = false;
-							startNode = nodes[ x ][ y ];
-							startNode.isWall = false;
-							openSet = [];
-							openSet.push( startNode );
-							startNode.isOpened = true;
-						} else if ( isMovingTarget ) {
-							targetNode = nodes[ x ][ y ];
-							targetNode.isWall = false;
-						} else {
-							nodes[ x ][ y ].isWall = true;
-						}
-					}
-				} else if ( mouseButton ===  RIGHT ) {
-					nodes[ x ][ y ].isWall = false;
-				}
-			}
-			for ( let i = 0; i < arrSize; i++ ) {
-				for ( let j = 0; j < arrSize; j++ ) {
-					nodes[ i ][ j ].pushNeighbors( nodes );
-				}
-			}
-		}
-
-	}
-
-	if ( isReady == false )
-		return;
-	//console.log("SEARCHING FOR TARGET");
-
-	//ASTAR ALGORITHM
-	// while ( openSet.length > 0 ) {
-
-	if ( openSet.length > 0 ) {
-		let winnerInd = 0;
-		for ( let i = 0; i < openSet.length; i++ ) {
-			if ( openSet[ i ].f < openSet[ winnerInd ].f ) {
-				winnerInd = i;
-				//console.log(i);
-			}
-		}
-
-		current = openSet[ winnerInd ];
-
-		if ( current == targetNode ) {
-			console.log( "DONE!" );
-			isNoLoop = true;
-
-			// background( 220 );
-			// for ( let i = 0; i < arrSize; i++ ) {
-			// 	for ( let j = 0; j < arrSize; j++ ) {
-			// 		nodes[ i ][ j ].show();
-			// 	}
-			// }
-			reconstructPath( current );
-			let steps = path.length - 1;
-			lastRunInfo.html( "Steps: " + steps + "      Time: " + timer + " seconds" );
-			noLoop();
-			// return;
-		}
-
-		removeFromArray( openSet, current );
-		// closedSet.push( current );
-		current.isOpened = false;
-		current.isClosed = true;
-
-
-		for ( let i = 0; i < current.neighbors.length; i++ ) {
-			let neighbor = current.neighbors[ i ];
-			// if ( !closedSet.includes( neighbor ) && neighbor.isWall == false ) {
-			if ( neighbor.isClosed == false && neighbor.isWall == false ) {
-
-				let tempG = current.g + Heuristic( neighbor, current );
-
-				// Is this a better path than before?
-				let newPath = false;
-				// if ( openSet.includes( neighbor ) ) {
-				if ( neighbor.isOpened ) {
-					if ( tempG < neighbor.g ) {
-						neighbor.g = tempG;
-						newPath = true;
-					}
-				} else {
-					neighbor.g = tempG;
-					newPath = true;
-					openSet.push( neighbor );
-					neighbor.isOpened = true;
-				}
-
-				// Yes, it's a better path
-				if ( newPath ) {
-					neighbor.h = Heuristic( neighbor, targetNode );
-					neighbor.f = neighbor.g + neighbor.h;
-					neighbor.previous = current;
-				}
-			}
-		}
-	} else {
-		console.log( "NO SOLUTION" );
-		isNoLoop = true;
-		noLoop();
-		// return;
-	}
-	reconstructPath( current );
-	// }
-	//for (let i =  0; i < path.length; i++) {
-	//  path[i].show(0, 0, 255);
-	//}
-	//console.log(current);
-	//console.log(path);
+  runAStarStep();
 }
 
-function reconstructPath( from ) {
-	path = [];
-	let temp = from;
-	path.push( temp );
-	while ( temp.previous != null ) {
-		path.push( temp.previous );
-		temp = temp.previous;
-	}
-
-	noFill();
-	stroke( 0, 0, 255 );
-	strokeWeight( 4 );
-	beginShape();
-	for ( let i = 0; i < path.length; i++ ) {
-		vertex( path[ i ].i * wid + wid / 2, path[ i ].j * wid + wid / 2 );
-	}
-	endShape();
-	noStroke();
+function drawGrid() {
+  const c = AStar.colors.grid;
+  stroke(c[0], c[1], c[2]);
+  strokeWeight(1);
+  
+  for (let i = 0; i <= AStar.arrSize; i++) {
+    const x = i * AStar.wid;
+    line(x, 0, x, height);
+  }
+  
+  for (let j = 0; j <= AStar.arrSize; j++) {
+    const y = j * AStar.wid;
+    line(0, y, width, y);
+  }
+  
+  noStroke();
 }
+
+function mousePressed() {
+  if (AStar.isReady) return;
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+
+  const x = floor(mouseX / AStar.wid);
+  const y = floor(mouseY / AStar.wid);
+
+  if (x < 0 || x >= AStar.arrSize || y < 0 || y >= AStar.arrSize) return;
+
+  const node = AStar.nodes[x][y];
+
+  if (mouseButton === LEFT) {
+    if (node === AStar.startNode) {
+      AStar.isMovingStart = true;
+    } else if (node === AStar.targetNode) {
+      AStar.isMovingTarget = true;
+    }
+  }
+}
+
+function mouseReleased() {
+  AStar.isMovingStart = false;
+  AStar.isMovingTarget = false;
+}
+
+function keyPressed() {
+  if (keyCode === 82) {
+    reset();
+    return;
+  }
+
+  if (AStar.isReady) return;
+
+  if (keyCode === 66) {
+    startSearch();
+  }
+
+  if (keyCode === 71) {
+    generateWalls();
+  }
+}
+
+function setHeuristic(type) {
+  AStar.currentHeur = type;
+  document.getElementById('manh').checked = type === 1;
+  document.getElementById('pyth').checked = type === 2;
+  document.getElementById('squares').checked = type === 3;
+}
+
+document.oncontextmenu = () => false;

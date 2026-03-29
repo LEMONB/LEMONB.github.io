@@ -1,21 +1,145 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Menu</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEMONB.github.io</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 50px;
+      letter-spacing: -0.02em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px 24px;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .github-link {
+      display: block;
+      text-align: center;
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      transition: color 0.2s ease;
+    }
+
+    .github-link:hover {
+      color: #1a1a2e;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+      }
+      
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-
 <body>
-  <h2>Menu</h2>
-  <ul>
-    <li><a href="https://lemonb.github.io/Space-CourseWork/">Space</a></li>
-    <li><a href="https://lemonb.github.io/AStar/">AStar</a></li>
-    <li><a href="https://lemonb.github.io/GA-NN/">GA-NN</a></li>
-    <li><a href="https://lemonb.github.io/Hello/">Hello</a></li>
-    <li><a href="https://lemonb.github.io/Maze/">Maze</a></li>
-    <li><a href="https://lemonb.github.io/RW/">RW</a></li>
-  </ul>
+  <div class="container">
+    <a href="https://github.com/lemonb" target="_blank" class="github-link">@lemonb</a>
+    <h1>Projects</h1>
+    <div class="grid">
+      <a href="https://lemonb.github.io/Space-CourseWork/" class="card">
+        <span class="card-icon">🚀</span>
+        <div class="card-title">Space</div>
+        <div class="card-desc">Mars rovers</div>
+      </a>
+      <a href="https://lemonb.github.io/AStar/" class="card">
+        <span class="card-icon">🔍</span>
+        <div class="card-title">A*</div>
+        <div class="card-desc">Pathfinding</div>
+      </a>
+      <a href="https://lemonb.github.io/GA-NN/" class="card">
+        <span class="card-icon">🧠</span>
+        <div class="card-title">GA-NN</div>
+        <div class="card-desc">Genetic Algorithm</div>
+      </a>
+      <a href="https://lemonb.github.io/Hello/" class="card">
+        <span class="card-icon">👋</span>
+        <div class="card-title">Hello</div>
+        <div class="card-desc">Landing page</div>
+      </a>
+      <a href="https://lemonb.github.io/Maze/" class="card">
+        <span class="card-icon">🌀</span>
+        <div class="card-title">Maze</div>
+        <div class="card-desc">Maze generator</div>
+      </a>
+      <a href="https://lemonb.github.io/RW/" class="card">
+        <span class="card-icon">🎮</span>
+        <div class="card-title">RW</div>
+        <div class="card-desc">Game</div>
+      </a>
+    </div>
+  </div>
 </body>
-
 </html>
